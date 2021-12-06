@@ -1,0 +1,102 @@
+serializer:
+            befor sending data to client we need to serialize it to json.
+
+
+#serialing a queryset 
+    # Blogserializer(blog.object.all(), many=True)
+
+
+
+#serializers.serializers
+class Blog(serializers.Serializer):
+    title = models.CharField(max_length=32, default='Title')
+    content = models.TextField(null=True)
+    pub_time = models.DateTimeField(null=True)
+
+    def create(self, validated_data):
+        return Article.objects.create(validated_data)
+    
+    def update(self, instance, validated_data):
+        instance.title = validated_data.get('title', instance.title)
+        instance.content = validated_data.get('content', instance.content)
+        instance.pub_time = validated_data.get('pub_time', instance.pub_time)
+        instance.save()
+        return instance
+
+
+# function based serialixzer view
+from rest_framework.parsers import JSONParser
+from django.http import HttpResponse, JsonResponse
+@csrf_exampt
+def article_serializer(request):
+    if request.method == 'GET':
+        article = Article.objects.all()
+        serializer = ArticleSerializer(article, many=True)
+        return JsonResponse(serializer.data, safe=False)
+    elif request.method == 'POST':
+        data = JSONParser().parse(request)
+        serializer = ArticleSerializer(data=data)
+
+        if serializer.is_valid():
+            serializer.save()
+            return JsonResponse(serializer.data, status=201)
+        return JsonResponse(serializer.errors, status=400)
+
+@csrf_exempt
+def article_detail_serializer(request, pk):
+    try:
+        article = Article.objects.get(pk=pk)
+    except Article.DoesNotExist:
+        return HttpResponse(status=404)
+    if request.method == 'GET':
+        serializer = ArticleSerializer(article)
+        return JsonResponse(serializer.data)
+    elif request.method == 'PUT':
+        data = JSONParser().parse(request)
+        serializer = ArticleSerializer(article, data=data)
+        if serializer.is_valid():
+            serializer.save()
+            return JsonResponse(serializer.data)
+        return JsonResponse(serializer.errors, status=400)
+    elif request.method == 'DELETE':
+        article.delete()
+        return HttpResponse(status=204)
+    
+# function based serialixzer view
+from rest_framework.parsers import JSONParser
+from django.http import HttpResponse, JsonResponse
+@csrf_exampt
+def article_serializer(request):
+    if request.method == 'GET':
+        article = Article.objects.all()
+        serializer = ArticleSerializer(article, many=True)
+        return JsonResponse(serializer.data, safe=False)
+    elif request.method == 'POST':
+        data = JSONParser().parse(request)
+        serializer = ArticleSerializer(data=data)
+
+        if serializer.is_valid():
+            serializer.save()
+            return JsonResponse(serializer.data, status=201)
+        return JsonResponse(serializer.errors, status=400)
+
+@csrf_exempt
+def article_detail_serializer(request, pk):
+    try:
+        article = Article.objects.get(pk=pk)
+    except Article.DoesNotExist:
+        return HttpResponse(status=404)
+    if request.method == 'GET':
+        serializer = ArticleSerializer(article)
+        return JsonResponse(serializer.data)
+    elif request.method == 'PUT':
+        data = JSONParser().parse(request)
+        serializer = ArticleSerializer(article, data=data)
+        if serializer.is_valid():
+            serializer.save()
+            return JsonResponse(serializer.data)
+        return JsonResponse(serializer.errors, status=400)
+    elif request.method == 'DELETE':
+        article.delete()
+        return HttpResponse(status=204)
+    
